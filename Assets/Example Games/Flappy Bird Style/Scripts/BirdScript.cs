@@ -6,7 +6,7 @@ public class BirdScript : MonoBehaviour
 	public float upForce;			//upward force of the "flap"
 	public float forwardSpeed;		//forward movement speed
 	public bool isDead = false;		//has the player collided with a wall?
-
+	
 	Animator anim;					//reference to the animator component
 	bool flap = false;				//has the player triggered a "flap"?
 
@@ -54,7 +54,7 @@ public class BirdScript : MonoBehaviour
 
 
 		AudioClip clip = Resources.Load ("Sounds/Hit") as AudioClip;
-
+ 
 		GameObject.Find ("Main Camera").GetComponent<AudioSource> ().PlayOneShot (clip);
 
 		if (isDead == false) {
