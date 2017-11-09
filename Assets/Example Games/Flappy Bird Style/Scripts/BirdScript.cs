@@ -1,75 +1,72 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 public class BirdScript : MonoBehaviour 
 {
-	public float upForce;			//upward force of the "flap"
-	public float forwardSpeed;		//forward movement speed
-	public bool isDead = false;		//has the player collided with a wall?
+	public float upForce;			//새가 y축 양의 방향으로 가는힘
+	public float forwardSpeed;		//새가 x축 양의 방향으로 가는힘
+	public bool isDead = false;		//죽었는지?
 	
-	Animator anim;					//reference to the animator component
-	bool flap = false;				//has the player triggered a "flap"?
+	Animator anim;					//애니메이션 클래스
+	bool flap = false;				//화면이 클릭됬는지
 
 
 	void Start()
 	{
-		//get reference to the animator component
-		anim = GetComponent<Animator> ();
-		//set the bird moving forward
-		GetComponent<Rigidbody2D>().velocity = new Vector2 (forwardSpeed, 0);
+		anim = GetComponent<Animator> (); //시작시 애니메이션을 가져옮
+		GetComponent<Rigidbody2D>().velocity = new Vector2 (forwardSpeed, 0); //Rigidbody 적용
 	}
 
 	void Update()
 	{
-		//don't allow control if the bird has died
+		/*프레임 단위로 죽었는지 체크*/
 		if (isDead)
 			return;
-		//look for input to trigger a "flap"
+		/*입력 감지*/
 		if (Input.anyKeyDown)
 			flap = true;
 	}
 
 	void FixedUpdate()
 	{
-		//if a "flap" is triggered...
+		/*입력이 잇다면*/
 		if (flap) 
 		{
-			flap = false;
+			flap = false; // 원상태로 돌림
 
-			AudioClip clip = Resources.Load ("Sounds/Flap") as AudioClip;
+			AudioClip clip = Resources.Load ("Sounds/Flap") as AudioClip; //음악 장입
 
-			GameObject.Find ("Main Camera").GetComponent<AudioSource> ().PlayOneShot (clip);
+			GameObject.Find ("Main Camera").GetComponent<AudioSource> ().PlayOneShot (clip); //음악 재생
 
-			//...tell the animator about it and then...
+			/*애니메이션 실행*/
 			anim.SetTrigger("Flap");
-			//...zero out the birds current y velocity before...
+			/*위로 튀어오름*/
 			GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, 0);
-			//..giving the bird some upward force
 			GetComponent<Rigidbody2D>().AddForce(new Vector2(0, upForce));
 		}
 	}
 
+	/*충돌체*/
 	void OnCollisionEnter2D(Collision2D other)
 	{
-
-
+		/*충돌했을 경우*/
 		AudioClip clip = Resources.Load ("Sounds/Hit") as AudioClip;
  
+		/*음악재생*/
 		GameObject.Find ("Main Camera").GetComponent<AudioSource> ().PlayOneShot (clip);
-
+		/*아직 살았을 경우*/
 		if (isDead == false) {
-
+			/*배경 재생*/
 			AudioClip clip2 = Resources.Load ("Sounds/Fall") as AudioClip;
-
 			GameObject.Find ("Main Camera").GetComponent<AudioSource> ().PlayOneShot (clip2);
 
 		}
 
-		//if the bird collides with something set it to dead...
+		/*죽었을때*/
 		isDead = true;
-		//...tell the animator about it...
+		/*죽음 애니메이션 재생*/
 		anim.SetTrigger ("Die");
-		//...and tell the game control about it
 		GameControlScript.current.BirdDied ();
 
 	}
